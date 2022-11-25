@@ -103,7 +103,7 @@ pub struct Configuration {
     /// Built-in plugin configuration. Built in plugins are pushed to the top level of config.
     #[serde(default)]
     #[serde(flatten)]
-    apollo_plugins: ApolloPlugins,
+    pub(crate) apollo_plugins: ApolloPlugins,
 }
 
 impl<'de> serde::Deserialize<'de> for Configuration {

@@ -2,7 +2,6 @@
 
 use std::env;
 use std::ffi::OsStr;
-use std::ffi::OsString;
 use std::fmt;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -11,7 +10,6 @@ use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 use clap::AppSettings;
-use clap::ArgAction;
 use clap::Args;
 use clap::CommandFactory;
 use clap::Parser;
@@ -149,12 +147,7 @@ pub(crate) struct Opt {
     log_level: String,
 
     /// Reload configuration and schema files automatically.
-    #[clap(
-        alias = "hr",
-        long = "hot-reload",
-        env = "APOLLO_ROUTER_HOT_RELOAD",
-        action(ArgAction::SetTrue)
-    )]
+    #[clap(alias = "hr", long = "hot-reload", env = "APOLLO_ROUTER_HOT_RELOAD")]
     hot_reload: bool,
 
     /// Configuration location relative to the project directory.
@@ -167,12 +160,7 @@ pub(crate) struct Opt {
     config_path: Option<PathBuf>,
 
     /// Enable development mode.
-    #[clap(
-        env = APOLLO_ROUTER_DEV_ENV,
-        long = "dev",
-        hide(true),
-        action(ArgAction::SetTrue)
-    )]
+    #[clap(env = "APOLLO_ROUTER_DEV_ENV", long = "dev")]
     dev: bool,
 
     /// Schema location relative to the project directory.
@@ -185,7 +173,7 @@ pub(crate) struct Opt {
     supergraph_path: Option<PathBuf>,
 
     /// Prints the configuration schema.
-    #[clap(long, action(ArgAction::SetTrue), hide(true))]
+    #[clap(long, hide(true))]
     schema: bool,
 
     /// Subcommands
@@ -193,11 +181,11 @@ pub(crate) struct Opt {
     command: Option<Commands>,
 
     /// Your Apollo key.
-    #[clap(skip = std::env::var("APOLLO_KEY").ok())]
+    #[clap(env = "APOLLO_KEY", hide(true))]
     apollo_key: Option<String>,
 
     /// Your Apollo graph reference.
-    #[clap(skip = std::env::var("APOLLO_GRAPH_REF").ok())]
+    #[clap(env = "APOLLO_GRAPH_REF", hide(true))]
     apollo_graph_ref: Option<String>,
 
     /// The endpoints (comma separated) polled to fetch the latest supergraph schema.
@@ -208,6 +196,10 @@ pub(crate) struct Opt {
     /// The time between polls to Apollo uplink. Minimum 10s.
     #[clap(long, default_value = "10s", parse(try_from_str = humantime::parse_duration), env)]
     apollo_uplink_poll_interval: Duration,
+
+    /// Disable sending anonymous usage information to Apollo.
+    #[clap(long, env = "APOLLO_TELEMETRY_DISABLED")]
+    anonymous_telemetry_disabled: bool,
 
     /// Display version and exit.
     #[clap(parse(from_flag), long, short = 'V')]
@@ -422,11 +414,10 @@ impl Executable {
             },
         };
 
-        let is_telemetry_disabled = std::env::var("APOLLO_TELEMETRY_DISABLED").ok().is_some();
-        let apollo_telemetry_msg = if is_telemetry_disabled {
-            "Anonymous usage data was disabled via APOLLO_TELEMETRY_DISABLED=1.".to_string()
+        let apollo_telemetry_msg = if opt.anonymous_telemetry_disabled {
+            "anonymous usage data was disabled.".to_string()
         } else {
-            "Anonymous usage data is gathered to inform Apollo product development.  See https://go.apollo.dev/o/privacy for more info.".to_string()
+            "anonymous usage data is gathered to inform Apollo product development.  See https://go.apollo.dev/o/privacy for more info".to_string()
         };
 
         let apollo_router_msg = format!("Apollo Router v{} // (c) Apollo Graph, Inc. // Licensed as ELv2 (https://go.apollo.dev/elv2)", std::env!("CARGO_PKG_VERSION"));
@@ -546,7 +537,7 @@ fn setup_panic_handler(dispatcher: Dispatch) {
             } else {
                 tracing::error!("{}", e)
             }
-            // Once we've panic'ed the behaviour of the router is non-deterministic
+            // Once we've panicked the behaviour of the router is non-deterministic
             // We've logged out the panic details. Terminate with an error code
             std::process::exit(1);
         });
@@ -561,16 +552,12 @@ fn copy_args_to_env() {
     let matches = Opt::command().get_matches();
     Opt::command().get_arguments().for_each(|a| {
         if let Some(env) = a.get_env() {
-            if a.is_allow_invalid_utf8_set() {
-                if let Some(value) = matches.get_one::<OsString>(a.get_id()) {
-                    env::set_var(env, value);
+            if matches.is_present(a.get_id()) {
+                if let Some(raw) = matches.get_raw(a.get_id()).unwrap_or_default().next() {
+                    env::set_var(env, raw);
+                } else {
+                    env::set_var(env, "true");
                 }
-            } else if let Ok(Some(value)) = matches.try_get_one::<PathBuf>(a.get_id()) {
-                env::set_var(env, value);
-            } else if let Ok(Some(value)) = matches.try_get_one::<String>(a.get_id()) {
-                env::set_var(env, value);
-            } else if let Ok(Some(value)) = matches.try_get_one::<bool>(a.get_id()) {
-                env::set_var(env, value.to_string());
             }
         }
     });

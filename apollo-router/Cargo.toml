@@ -38,6 +38,7 @@ default = []
 features = ["docs_rs"]
 
 [dependencies]
+askama = "0.11.1"
 access-json = "0.1.0"
 anyhow = "1.0.66"
 ansi_term = "0.12"
@@ -61,6 +62,7 @@ clap = { version = "3.2.23", default-features = false, features = [
     "std",
 ] }
 console-subscriber = { version = "0.1.8", optional = true }
+ci_info = {version="0.14.8", features=["serde-1"] }
 ctor = "0.1.26"
 dashmap = { version = "5.4.0", features = ["serde"] }
 deadpool = { version = "0.9.5", features = ["rt_tokio_1"] }
@@ -193,7 +195,7 @@ url = { version = "2.3.1", features = ["serde"] }
 urlencoding = "2.1.2"
 uuid = { version = "1.2.2", features = ["serde", "v4"] }
 yaml-rust = "0.4.5"
-askama = "0.11.1"
+wsl = "0.1.0"
 
 [target.'cfg(macos)'.dependencies]
 uname = "0.1.1"
@@ -202,7 +204,7 @@ uname = "0.1.1"
 uname = "0.1.1"
 
 [dev-dependencies]
-insta = { version = "1.21.2", features = ["json", "redactions"] }
+insta = { version = "1.21.2", features = ["json", "redactions", "yaml"] }
 introspector-gadget = "0.1.0"
 maplit = "1.0.2"
 memchr = { version = "2.5.0", default-features = false }

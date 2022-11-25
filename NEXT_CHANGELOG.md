@@ -70,6 +70,39 @@ There is now a separate subcommand for config related operations:
 `router --schema` has been deprecated and users should move to `router config schema`.
 
 ## 🚀 Features
+### Configuration upgrades ([Issue #2124](https://github.com/apollographql/router/issues/2124))
+
+The Router will now send anonymous usage telemetry to Apollo that includes a subset of the information listed in the [privacy policy](https://www.apollographql.com/docs/router/privacy/)
+
+It includes information about the environment that the Router is running in, version of the router, the command line args, and configuration shape.
+Note that strings are output as `set` so that we do not leak confidential or sensitive information. 
+Boolean and numerics are output.
+
+For example:
+```json
+{
+  "machine_id": "57c2a779-2ae3-476b-a712-122b9f0f19b6",
+  "session_id": "fbe09da3-ebdb-4863-8086-feb97464b8d7",
+  "version": "1.4.0",
+  "platform": {
+    "os": "linux",
+    "continuous_integration": null
+  },
+  "usage": {
+    "configuration.headers.all.request.propagate.named": "set",
+    "configuration.headers.all.request.insert.name": "set",
+    "configuration.headers.all.request.insert.value": "set",
+    "configuration.headers.all.request.len": 4,
+    "args.config-path": "set",
+    "args.apollo-key": "set",
+    "args.apollo-graph-ref": "set"
+  }
+}
+```
+
+Users can disable the sending this data by using the command line flag `--anonymous-telemetry-disabled` or setting the environment variable `APOLLO_TELEMETRY_DISABLED=true`
+
+By [@bryncooke](https://github.com/bryncooke) in https://github.com/apollographql/router/pull/2173
 
 ### Add configuration for trace ID ([Issue #2080](https://github.com/apollographql/router/issues/2080))
 
