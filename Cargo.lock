@@ -108,9 +108,9 @@ checksum = "216261ddc8289130e551ddcd5ce8a064710c0d064a4d2895c67151c92b5443f6"
 
 [[package]]
 name = "apollo-compiler"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4e8b67b10b590ac58e555af24b7cc7863deacb4c7bc6ae2efd60b0256a2b654"
+checksum = "f1466d86c8bec27cd5c28c80538a298729cf57ab3127389741336ac586634ec8"
 dependencies = [
  "apollo-parser 0.4.0",
  "miette 4.7.1",
@@ -167,6 +167,7 @@ dependencies = [
  "access-json",
  "ansi_term",
  "anyhow",
+ "apollo-compiler",
  "apollo-encoder 0.4.0",
  "apollo-parser 0.4.0",
  "arc-swap",
@@ -247,6 +248,7 @@ dependencies = [
  "serde_yaml",
  "sha2",
  "shellexpand",
+ "similar-asserts",
  "static_assertions",
  "sys-info",
  "tempfile",
@@ -4574,6 +4576,20 @@ name = "similar"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62ac7f900db32bf3fd12e0117dd3dc4da74bc52ebaac97f39668446d89694803"
+dependencies = [
+ "bstr",
+ "unicode-segmentation",
+]
+
+[[package]]
+name = "similar-asserts"
+version = "1.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbf644ad016b75129f01a34a355dcb8d66a5bc803e417c7a77cc5d5ee9fa0f18"
+dependencies = [
+ "console 0.15.2",
+ "similar",
+]
 
 [[package]]
 name = "slab"
